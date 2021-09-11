@@ -32,16 +32,17 @@ export class Provider extends React.Component {
 
 
     socket.onmessage = (message) => {
-      // console.log('client recieved ~~~ ',message.data);
-      // const dataObject = JSON.parse(message.data);
-      // console.log(dataObject);
-      // console.log('~~~~~~~~~~~~~~~~~~~~~~~');
       const dataObject = JSON.parse(message.data);
       console.log('data recieved', dataObject);
       switch (dataObject.action){
         case 'officializeChangeName':
           console.log('officializeChangeName', dataObject.officialUserName);
           this.state.officialUserName = dataObject.officialUserName;
+          break;
+        case 'chatRecord':
+          console.log('chatRecord', dataObject.chatRecord);
+          this.state.chatRecord = dataObject.chatRecord;
+          break;
       }
 
     }
@@ -50,16 +51,6 @@ export class Provider extends React.Component {
 
 
   }
-
-  // ~~~~~~~~~~~~~~~~~~~
-  // ~~~ React State ~~~
-  // ~~~~~~~~~~~~~~~~~~~
-
-  componentDidMount() {}
-
-  componentDidUpdate() {}
-
-  componentWillUnmount() {}
 
 
 
@@ -79,9 +70,7 @@ export class Provider extends React.Component {
       message: this.state.message,
     }
 
-    // this.state.socket.send( 'message',JSON.stringify(message) );
     this.state.socket.send( JSON.stringify(message) );
-    // this.state.socket.send( message );
   }
 
   changeName = ()=>{
@@ -92,6 +81,15 @@ export class Provider extends React.Component {
     this.state.socket.send(JSON.stringify(message));
   }
   
+  // ~~~~~~~~~~~~~~~~~~~
+  // ~~~ React State ~~~
+  // ~~~~~~~~~~~~~~~~~~~
+
+  componentDidMount() {}
+
+  componentDidUpdate() {}
+
+  componentWillUnmount() {}
 
   // ~~~~~~~~~~~~
   // ~~ RENDER ~~

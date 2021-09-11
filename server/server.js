@@ -10,17 +10,17 @@ const serverConfig = {
 const wss = new Websocket.Server(serverConfig);
 
 let clients = {};
+let chatRecord = [];
 
 
 wss.on('connection' , socket => {
   const socketId = Math.ceil(Math.random() * 9999999);
-
-  
-  // add connection to clients 
-  // clients.push({ socketId:socketId, socket:socket});
   clients[socketId] = {socketId:socketId, socket:socket};
-  chatRecord = [];
   console.log('User Connected: ');
+
+  let chatRecordMessage = { action: 'chatRecord', chatRecord: chatRecord}
+  socket.send(JSON.stringify( chatRecordMessage ));
+  
 
 
 
@@ -37,14 +37,22 @@ wss.on('connection' , socket => {
           message: dataObject.message,
         }
         chatRecord.push(newChatEntry);
-        socket.send( JSON.stringify(newChatEntry) );
+        // socket.send( JSON.stringify(newChatEntry) );
+        let chatRecordMessage = { action: 'chatRecord', chatRecord}
+        socket.send(JSON.stringify( chatRecordMessage ));
+        break;
 
       case 'changeUserName':
+        console.log('changeUserName Switch');
         const nameResponse = {
           action: 'officializeChangeName',
           officialUserName: dataObject.userName,
         }
         socket.send(JSON.stringify(nameResponse));
+        break;
+      case 'chatRecord':
+        
+        break;
     }
     // socket.send('message recieved');
 
