@@ -55,10 +55,25 @@ const Chat = ({socket, username, room}) => {
           )
         })}
       </div>
+
+
+<div class="flex ...">
+  <div class="flex-1 ...">1</div>
+  <div class="contents">
+    <div class="flex-1 ...">2</div>
+    <div class="flex-1 ...">3</div>
+  </div>
+  <div class="flex-1 ...">4</div>
+</div>
+
+<span class="decoration-clone bg-gradient-to-b from-yellow-400 to-red-500 text-transparent ">
+  Hello<br />
+  World
+</span>
       
       <div className="chat-footer">
         <input type="text" placeholder="Type a message..."  onChange={ e =>{setCurrentMessage(e.target.value)}} />
-        <button onClick={sendMessage} className="bg-primary px-4 py-1" >&#9658;</button>
+        <button onClick={sendMessage} className="bg-primary px-4 py-1" >Send &#9658;</button>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-
+// https://www.youtube.com/watch?v=NU-HfZY3ATQ
 const express = require('express');
 const app = express();
 
@@ -22,19 +22,11 @@ const io = new Server(server, {
   }
 });
 
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors:{
-//     // origin: '*',
-//     origin: 'http://localhost:3000',
-//     method:['GET', 'POST'],
-//   }
-// });
-
 
 
 io.on('connection', (socket)=>{
-  console.log('User Connected', socket.id);
+  const userColor = createRandomHexCode();
+  console.log('User Connected', socket.id, userColor);
   
   socket.on('join_room',(room)=>{
     socket.join(room);
@@ -43,7 +35,13 @@ io.on('connection', (socket)=>{
 
   socket.on('send_message', (data)=>{
     console.log('recieved message', data, socket.rooms);
-    io.to(data.room).emit('received_message', data);
+    const responseData = {
+      author: data.author,
+      authorColor: userColor,
+      message: data.message,
+      time: data.time
+    }
+    io.to(data.room).emit('received_message', responseData);
     // socket.to(data.room).emit('receive_message', data);
   });
 
@@ -53,6 +51,12 @@ io.on('connection', (socket)=>{
 
 });
 
+
+
+//utils
+function createRandomHexCode(){
+  return Math.floor(Math.random()*16777216).toString(16);
+}
 
 
 
