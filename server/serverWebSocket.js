@@ -22,11 +22,18 @@ wss.on('connection' , socket => {
   socket.send(JSON.stringify( chatRecordMessage ));
   
 
+  socket.on('change_user_name', (data)=>{
+    console.log('change_user_name', data);
+  })
 
 
   socket.on('message', message =>{
-    const dataObject = JSON.parse(message);
-    console.log('Message Received: ', dataObject, typeof(dataObject));
+    console.log('Message Received: ', message, typeof(message));
+    let dataObject = message;
+    if(typeof(message) === 'object'){
+    dataObject = JSON.parse(message);
+    }
+    // console.log('Message Received: ', dataObject, typeof(dataObject));
     switch(dataObject.action){
       case 'sendMessage':
         console.log('sendMessage Switch');
@@ -42,7 +49,7 @@ wss.on('connection' , socket => {
         socket.send(JSON.stringify( chatRecordMessage ));
         break;
 
-      case 'changeUserName':
+      case 'change_user_name':
         console.log('changeUserName Switch');
         const nameResponse = {
           action: 'officializeChangeName',

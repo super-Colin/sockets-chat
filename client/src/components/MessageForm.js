@@ -1,7 +1,8 @@
 
-import React from 'react'
+import React, {useEffect} from 'react'
 import WithConsumer from '../context/WithConsumer';
 
+import ChatLog from './ChatLog';
 
 
 
@@ -10,85 +11,79 @@ import WithConsumer from '../context/WithConsumer';
 
 const MessageForm = ({context}) => {
 
+  const [messageState, setMessageState] = React.useState({
+    message: '',
+    officialUserName: context.officialUserName,
+    userName: context.userName,
+    changingUserName: true,
+    chatRecord: context.chatRecord,
+  });
+
+  context.socket.on('officialize_change_name', (data)=>{
+    console.log('officializeChangeName', data.officialUserName);
+    context.officialUserName = data.officialUserName;
+    setMessageState({...messageState, officialUserName: data.officialUserName});
+  })
+
+  useEffect(() => {
+    console.log('MessageForm useEffect');
+  } , [context]);
+
+
   const onTextChange = e => {
     const newMessageState = { ...messageState, [e.target.name]: e.target.value };
     setMessageState( newMessageState );
     context[e.target.name] = e.target.value;
   }
 
-  const [messageState, setMessageState] = React.useState({
-    message: '',
-    officialUserName: context.officialUserName,
-    userName: context.userName,
-    changingUserName: false,
-    chatRecord: context.chatRecord,
-  });
-  
-  // setInterval( ()=>{ 
-  //   if(context.chatRecord !== messageState.chatRecord){
-  //     console.log('setting chat record')
-  //     setMessageState({ ...messageState, chatRecord: context.chatRecord});
-  //   }
-  // }, 1000)
-
-
   const toggleChangingName = () => {
     const newMessageState = { ...messageState, changingUserName: !messageState.changingUserName };
     setMessageState( newMessageState );
   }
 
-  const changeName = () => {
-    console.log('client side change name');
-    const newMessageState = { ...messageState, officialUserName: messageState.userName, changingUserName: false };
-    setMessageState( newMessageState );
-    // toggleChangingName();
-    context.userName = messageState.userName;
-  }
 
-    context.socket.onmessage = (message) => {
-      const dataObject = JSON.parse(message.data);
-      if(dataObject.action=== 'chatRecord'){
-        console.log('chat record update');
-        setMessageState({ ...messageState, chatRecord: dataObject.chatRecord});
-      }
-    }
 
 
   return (
     <div>
-      {messageState.officialUserName === '' ? <h3>Change Your Name:</h3> : <h3>{messageState.officialUserName}</h3>}
+      <div className="flex flex-wrap justify-center">
+        {messageState.officialUserName === '' ? <h3 className="text-center text-4xl px-2" >Set Your Name To Send Messages:</h3> : <h3 className="text-center text-2xl px-2">{messageState.officialUserName}</h3>}
+        <button onClick={toggleChangingName} className="self-end px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
+      </div>
 
-      { messageState.changingUserName ? <div>
-        <input type="text" value={messageState.userName} name="userName" onChange={ e => onTextChange(e) } />
-        <button onClick={ changeName }>Submit Name</button>
-      </div> : '' }
+      <div className="flex justify-center flex-wrap mb-6">
+        { messageState.changingUserName ? <div className="flex flex-wrap justify-center">
+          <input type="text" maxLength="10" value={messageState.userName} name="userName" onChange={ (e) => {onTextChange(e)} } className="px-2 py-1 bg-gray-300" />
+          <button onClick={ e =>{ context.changeName(messageState.userName); toggleChangingName()} } className="px-2 py-1 bg-green-300" >Submit Name</button>
+        </div> : null }
+
+        <span className="flex-break my-1" />
+
+        {/* <button onClick={toggleChangingName} className="px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button> */}
+      </div>
 
 
-      <button onClick={toggleChangingName} >Change Name</button>
-      {/* <h3>name</h3> */}
 
-
-      <h4>Message:</h4>
-      <input type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } />
-      <button onClick={context.sendMessage}>Send</button>
-
-      <hr />
-      <button onClick={e =>{console.log(messageState)}}>Log Message State</button>
-      <button onClick={e =>{console.log(context)}}>Log Context</button>
-
-    <div>
+          {/* <button onClick={e =>{console.log(messageState)}} className="bg-blue-300" >Log Message State</button>
+          <button onClick={e =>{console.log(context)}} className="bg-pink-300" >Log Context</button> */}
       <h2>Chat Log</h2>
-      {/* {context.chatRecord.map((record, index) => { */}
-      {messageState.chatRecord.map((record, index) => {
-        return (
-          <div key={index}>
-            <span>{record.from}:</span>
-            <span>{record.message}</span>
-          </div>
-        )
-      })}
-    </div>
+      <ChatLog messages={messageState} />
 
+
+      {/* <button onClick={()=>{
+        console.log('sending test');
+        context.socket.emit('test', {test:'test'})}
+      } className="bg-red-700" >Test Socket</button> */}
+
+      {messageState.officialUserName === '' ? null :
+        <div className="flex flex-wrap justify-center px-2 py-1 mt-10">
+          {/* <h4>Message:</h4> */}
+          <textarea type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } className="w-full h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
+          <button onClick={context.sendMessage} className="px-2 py-1 bg-green-300" >Send</button>
+
+          <hr />
+        </div>
+      }
 
     </div>
   )

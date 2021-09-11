@@ -1,5 +1,5 @@
 import React from 'react';
-import io from 'socket.io-client';
+
 
 
 const socketContext = React.createContext();
@@ -11,8 +11,7 @@ export class Provider extends React.Component {
 
   constructor(props) {
     super(props);
-    // const socket = new WebSocket('ws://localhost:4000');
-    const socket = io('http://localhost:4000');;
+    const socket = new WebSocket('ws://localhost:4000');
 
     this.state = {
       socket: socket,
@@ -26,19 +25,32 @@ export class Provider extends React.Component {
       changeName : this.changeName.bind(this),
     }
 
-    socket.on('connect', () => {
+    socket.onopen = () => {
       console.log('Connected to server');
-    })
+    }
 
 
-    // socket.on('officialize_change_name', (data)=>{
-    //   console.log('officializeChangeName', data.officialUserName);
-    //   this.state.officialUserName = data.officialUserName;
-    // })
-    // socket.on('chat_record', (data)=>{
-    //   console.log('chat_record', data);
-    //   this.state.chatRecord = data;
-    // })
+
+    socket.onmessage = (message) => {
+      const dataObject = JSON.parse(message.data);
+      console.log('data recieved', dataObject);
+      switch (dataObject.action){
+        case 'officializeChangeName':
+          console.log('officializeChangeName', dataObject.officialUserName);
+          this.state.officialUserName = dataObject.officialUserName;
+          break;
+        case 'chatRecord':
+          console.log('chatRecord', dataObject.chatRecord);
+          this.state.chatRecord = dataObject.chatRecord;
+          break;
+        default:
+          console.log('Default Switch');
+      }
+
+    }
+
+
+
 
   }
 
@@ -54,19 +66,21 @@ export class Provider extends React.Component {
 
   sendMessage = ()=>{
     const message = {
+      action: 'sendMessage',
       officialUserName: this.state.officialUserName,
-      // userName: this.state.userName,
-      time: new Date().getHours() + ':' + new Date().getMinutes(),
+      userName: this.state.userName,
       message: this.state.message,
     }
 
-    this.state.socket.emit( 'send_message', message );
+    this.state.socket.send( JSON.stringify(message) );
   }
 
-  changeName = (newName) => {
-    console.log('client side change name request');
-    this.state.userName = newName;
-    this.state.socket.emit('change_user_name', { userName:newName});
+  changeName = ()=>{
+    const message = {
+      action : 'changeUserName',
+      userName : this.state.userName,
+    }
+    this.state.socket.send(JSON.stringify(message));
   }
   
   // ~~~~~~~~~~~~~~~~~~~

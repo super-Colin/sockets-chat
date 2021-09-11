@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import WithConsumer from '../context/WithConsumer';
 
 const ChatLog = ({context}) => {
+
+  const [messages, setMessages] = React.useState([]);
+
+    context.socket.on('chat_record', (data)=>{
+      // console.log('chat_record', data);
+      console.log('chat_record');
+      context.chatRecord = data;
+      setMessages(data);
+      document.getElementById('chatLog').scrollTop = document.getElementById('chatLog').scrollHeight;
+    })
+
+  // useEffect(() => {
+  //   console.log('chat updated');
+  // }, [context])
+
   return (
-    <div>
-      <h2>Chat Log</h2>
-      {context.chatRecord.map((record, index) => {
+    <div id="chatLog" className="chatLog">
+      
+      {messages.map((record, index) => {
         return (
-          <div key={index}>
-            {/* <span>{record.user}:</span> */}
-            <span>{record.message}</span>
+          <div key={index}  className="message my-2">
+            <div className="flex justify-between py-2 px-4 bg-gray-400">
+              <span className="text-lg font-bold">{record.author}</span>
+              <span>{record.time}</span>
+            </div>
+
+            <div className="flex justify-between py-2 px-4">
+              <span className="message">{record.message}</span>
+            </div>
+            
+            <hr />
           </div>
         )
       })}
