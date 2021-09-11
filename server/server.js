@@ -1,71 +1,63 @@
 
-const Websocket = require('ws');
+const express = require('express');
+const app = express();
 
-const serverConfig = {
-  port: 4000,
-  maxPayload: 1024,
-}
+const http = require('http');
+const cors = require('cors');
 
+const {Server} = require('socket.io');
+// import {Server} from 'socket.io';
 
-const wss = new Websocket.Server(serverConfig);
-
-let clients = {};
-let chatRecord = [];
+app.use(cors());
 
 
-wss.on('connection' , socket => {
-  const socketId = Math.ceil(Math.random() * 9999999);
-  clients[socketId] = {socketId:socketId, socket:socket};
-  console.log('User Connected: ');
+const server = http.createServer(app);
 
-  let chatRecordMessage = { action: 'chatRecord', chatRecord: chatRecord}
-  socket.send(JSON.stringify( chatRecordMessage ));
+console.log(Server);
+const io = new Server(server, {
+  cors:{
+    // origin: '*',
+    origin: 'http://localhost:3000',
+    method:['GET', 'POST'],
+  }
+});
+
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors:{
+//     // origin: '*',
+//     origin: 'http://localhost:3000',
+//     method:['GET', 'POST'],
+//   }
+// });
+
+
+
+io.on('connection', (socket)=>{
+  console.log('User Connected', socket.id);
   
+  socket.on('join_room',(room)=>{
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
+  });
+
+  socket.on('send_message', (data)=>{
+    console.log('recieved message', data, socket.rooms);
+    io.to(data.room).emit('received_message', data);
+    // socket.to(data.room).emit('receive_message', data);
+  });
+
+  socket.on('disconnect', (data)=>{
+    console.log('User Disconnected', socket.id);
+  });
+
+});
 
 
 
-  socket.on('message', message =>{
-    const dataObject = JSON.parse(message);
-    console.log('Message Received: ', dataObject, typeof(dataObject));
-    switch(dataObject.action){
-      case 'sendMessage':
-        console.log('sendMessage Switch');
-        const newChatEntry = {
-          from: dataObject.userName,
-          fromId: socketId,
-          toChannel: dataObject.toChannel,
-          message: dataObject.message,
-        }
-        chatRecord.push(newChatEntry);
-        // socket.send( JSON.stringify(newChatEntry) );
-        let chatRecordMessage = { action: 'chatRecord', chatRecord}
-        socket.send(JSON.stringify( chatRecordMessage ));
-        break;
 
-      case 'changeUserName':
-        console.log('changeUserName Switch');
-        const nameResponse = {
-          action: 'officializeChangeName',
-          officialUserName: dataObject.userName,
-        }
-        socket.send(JSON.stringify(nameResponse));
-        break;
-      case 'chatRecord':
-        
-        break;
-    }
-    // socket.send('message recieved');
+server.listen(4000, () => {
+  console.log('server running');
+});
 
-  })
-
-
-  // socket.on('close', ()=>{
-  //   console.log('User Disconnected: ', socket.id);
-  // })
-  socket.on('close',()=>{
-    console.log('User Disconnected: ');
-    delete clients[socketId];
-  })
-
-})
 
