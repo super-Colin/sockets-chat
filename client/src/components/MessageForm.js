@@ -24,12 +24,12 @@ const MessageForm = ({context}) => {
     chatRecord: context.chatRecord,
   });
   
-  setInterval( ()=>{ 
-    if(context.chatRecord !== messageState.chatRecord){
-      console.log('setting chat record')
-      setMessageState({ ...messageState, chatRecord: context.chatRecord});
-    }
-  }, 1000)
+  // setInterval( ()=>{ 
+  //   if(context.chatRecord !== messageState.chatRecord){
+  //     console.log('setting chat record')
+  //     setMessageState({ ...messageState, chatRecord: context.chatRecord});
+  //   }
+  // }, 1000)
 
 
   const toggleChangingName = () => {
@@ -45,6 +45,13 @@ const MessageForm = ({context}) => {
     context.userName = messageState.userName;
   }
 
+    context.socket.onmessage = (message) => {
+      const dataObject = JSON.parse(message.data);
+      if(dataObject.action=== 'chatRecord'){
+        console.log('chat record update');
+        setMessageState({ ...messageState, chatRecord: dataObject.chatRecord});
+      }
+    }
 
 
   return (
@@ -75,7 +82,7 @@ const MessageForm = ({context}) => {
       {messageState.chatRecord.map((record, index) => {
         return (
           <div key={index}>
-            {/* <span>{record.user}:</span> */}
+            <span>{record.from}:</span>
             <span>{record.message}</span>
           </div>
         )

@@ -43,6 +43,8 @@ export class Provider extends React.Component {
           console.log('chatRecord', dataObject.chatRecord);
           this.state.chatRecord = dataObject.chatRecord;
           break;
+        default:
+          console.log('Default Switch');
       }
 
     }
