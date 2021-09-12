@@ -6,7 +6,7 @@ const ChatLog = ({context}) => {
   const [messages, setMessages] = React.useState([]);
 
     context.socket.on('chat_record', (data)=>{
-      console.log('chat_record', data);
+      // console.log('chat_record', data);
       // console.log('chat_record');
       context.chatRecord = data;
       setMessages(data);
@@ -18,11 +18,12 @@ const ChatLog = ({context}) => {
   // }, [context])
 
   return (
-    <div id="chatLog" className="chatLog">
+    <div id="chatLog" className="chatLog bg-gray-600 mx-auto lg:container">
       
       {messages.map((record, index) => {
+        const messageKey = `${record.authorColor}-${record.key}`;
         return (
-          <div key={index}  className="message my-2">
+          <div key={messageKey}  className="message my-2">
             <div className="flex justify-between py-2 px-4" style={{backgroundColor:`#${record.authorColor}`}}>
               <span className="text-lg font-bold p-1 bg-white rounded" >{record.author}</span>
               <span>{record.time}</span>

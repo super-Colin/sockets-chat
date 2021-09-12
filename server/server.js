@@ -1,4 +1,7 @@
 
+const MAX_CHAT_MESSAGES = 6;
+
+
 const express = require('express');
 const app = express();
 
@@ -21,8 +24,6 @@ const io = new Server(server, {
 function createRandomHexCode(){
   return Math.floor(Math.random()*16777216).toString(16);
 }
-
-
 
 
 // Keep track of chat messages
@@ -48,31 +49,35 @@ io.on('connection' , socket => {
 
     // Check for all our expected values and ignore anything else
     let validMessage = true;
+    let errorMessage = '';
+    const setError = (newErrorMessage) => {
+      validMessage = false;
+      errorMessage = newErrorMessage;
+    }
+      
     const newRecord = {
       // room: (socket.room ? `${socket.room}` : validMessage = false),
-      author: (socket.officialUserName ? `${socket.officialUserName}` : validMessage = false),
-      // author: (socket.officialUserName ? `${socket.officialUserName}` : console.log('invalid name')),
-      authorColor: (socket.officialUserColor ? `${socket.officialUserColor}` : validMessage = false),
-      // authorColor: (socket.officialUserColor ? `${socket.officialUserColor}` : console.log('invalid author color')),
-      time: ( data.time ? `${data.time}` : validMessage = false),
-      // time: ( data.time ? `${data.time}` : console.log('invalid time')),
-      message: (data.message ? `${data.message}` : validMessage = false),
-      // message: (data.message ? `${data.message}` : console.log('invalid message')),
+      author: (socket.officialUserName ? `${socket.officialUserName}` : setError('No officialized name') ),
+      authorColor: (socket.officialUserColor ? `${socket.officialUserColor}` : setError('You dont have a color set??? Try reconnecting..') ),
+      time: ( data.time ? `${data.time}` : setError('Invalid time') ),
+      message: (data.message ? `${data.message}` : setError('Invalid Message') ),
+      key: `${new Date().getTime()}` // create a key for more effcient React rendering
     }
 
     // If it's valid, add it to the chat record
     if(validMessage){
       chatRecord.push(newRecord);
       // If chat is somehow over 100 remove *all but the last 100*
-      if(chatRecord.length >= 100){
-        const chatLength = chatRecord.length;
-        chatRecord.splice( chatLength - 100 , chatLength);
+      if(chatRecord.length >= MAX_CHAT_MESSAGES){
+        chatRecord = chatRecord.splice( chatRecord.length - MAX_CHAT_MESSAGES , chatRecord.length);
       }
       console.log('sending chat record')
       io.emit('chat_record', chatRecord);
+
+      // else send a message letting them now something went wrong
     }else{
       console.log('invalid message')
-      socket.emit('unsuccessful_message', {errorMessage:'Invalid message'} );
+      socket.emit('unsuccessful_message', {errorMessage: errorMessage} );
     }
   })
 
@@ -81,7 +86,7 @@ io.on('connection' , socket => {
     // console.log('change_user_name', data);
     socket.officialUserName = data.userName
     console.log('officialUserName is now ', socket.officialUserName);
-    socket.emit('change_user_name_success', {officialUserName: data.userName});
+    socket.emit('change_user_name_success', {officialUserName: data.userName, officialUserColor: socket.officialUserColor});
   })
 
   socket.on('join_room',(data)=>{

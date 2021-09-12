@@ -40,19 +40,15 @@ export class Provider extends React.Component {
   // ~~ UTILS ~~
   // ~~~~~~~~~~~
 
-  //   const connectWebSocket = () => {
-  //   return socket = new WebSocket('ws:http://localhost:4000');
-  // } 
-
   sendMessage = ()=>{
     const thisDate = new Date();
     const message = {
       officialUserName: this.state.officialUserName,
-      // userName: this.state.userName,
       time: thisDate.getHours() + ':' + ( `${thisDate.getMinutes()}`.length === 1 ? '0' + thisDate.getMinutes() : thisDate.getMinutes() ),
       message: this.state.message,
     }
 
+    // send the message to the server
     this.state.socket.emit( 'send_message', message );
   }
 

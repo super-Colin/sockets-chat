@@ -3,6 +3,7 @@ import React, {useEffect} from 'react'
 import WithConsumer from '../context/WithConsumer';
 
 import ChatLog from './ChatLog';
+import ErrorBlock from './ErrorBlock';
 
 
 
@@ -16,6 +17,7 @@ const MessageForm = ({context}) => {
     message: '',
     officialUserName: context.officialUserName,
     userName: context.userName,
+    userColor: context.userColor,
     changingUserName: true,
     chatRecord: context.chatRecord,
   });
@@ -23,7 +25,7 @@ const MessageForm = ({context}) => {
   context.socket.on('change_user_name_success', (data)=>{
     console.log('officializeChangeName', data.officialUserName);
     context.officialUserName = data.officialUserName;
-    setMessageState({...messageState, officialUserName: data.officialUserName});
+    setMessageState({...messageState, officialUserName: data.officialUserName, userColor: data.officialUserColor});
   })
 
   context.socket.on('unsuccessful_message', (data)=>{
@@ -36,12 +38,14 @@ const MessageForm = ({context}) => {
 
 
   const onTextChange = e => {
+    resetError();
     const newMessageState = { ...messageState, [e.target.name]: e.target.value };
     setMessageState( newMessageState );
     context[e.target.name] = e.target.value;
   }
 
   const toggleChangingName = () => {
+    resetError();
     const newMessageState = { ...messageState, changingUserName: !messageState.changingUserName };
     setMessageState( newMessageState );
   }
@@ -52,6 +56,11 @@ const MessageForm = ({context}) => {
     context.message = '';
     setMessageState( newMessageState );
   }
+  const resetError = () => {
+    if(errorState.error){
+      setErrorState({errorMessage:'', error:false});
+    }
+  }
 
 
 
@@ -59,14 +68,17 @@ const MessageForm = ({context}) => {
   return (
     <div>
       <div className="flex flex-wrap justify-center my-6">
-        {messageState.officialUserName === '' ? <h3 className="text-center text-4xl px-2 text-white underline" >Set Your Name To Send Messages:</h3> : <h3 className="text-center text-4xl px-2  text-white">{messageState.officialUserName}</h3>}
+        {messageState.officialUserName === '' ? <h3 className="text-center text-4xl px-2  text-white underline" >Set Your Name To Send Messages:</h3> : <h3 className="text-center text-4xl px-2 border-2 rounded px-3 py-2 text-white" style={{borderColor: `#${messageState.userColor}`}} >{messageState.officialUserName}</h3>}
         
-        {messageState.officialUserName === '' ? null :
+        {/* {messageState.officialUserName === '' ? null :
           <button onClick={toggleChangingName} className="px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
-        }
-
+        } */}
+        
+          <button onClick={toggleChangingName} className="px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
+        
 
       </div>
+      { errorState.error ? <ErrorBlock errorMessage={errorState.errorMessage} /> : null }
 
       <div className="flex justify-center flex-wrap mb-6">
         { messageState.changingUserName ? <div className="flex flex-wrap justify-center">
@@ -87,16 +99,17 @@ const MessageForm = ({context}) => {
       <ChatLog messages={messageState} />
 
 
-      {/* <button onClick={()=>{
+      <button onClick={()=>{
+        resetError();
         console.log('sending test');
-        context.socket.emit('test', {test:'test'})}
-      } className="bg-red-700" >Test Socket</button> */}
+        context.socket.emit('send_message', {test:'test'})}
+      } className="bg-red-700" >Test Socket</button>
 
       {messageState.officialUserName === '' ? null :
         <div className="flex flex-wrap justify-center px-2 py-1 mt-10 lg:container lg:mx-auto">
 
-          <textarea type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
-          <button onClick={ submitMessage } className="text-2xl px-4 py-2 bg-green-300" >Send</button>
+          <textarea type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } className="w-full  h-40 px-2 py-1 mx-4 bg-gray-100 border border-gray-500" placeholder="Message..." />
+          <button onClick={ submitMessage } className="rounded text-2xl mt-2 px-4 py-2 bg-green-400" >Send</button>
 
           <hr />
         </div>
