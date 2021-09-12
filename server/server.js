@@ -18,17 +18,21 @@ const io = new Server(server, {
     }
 });
 
+function createRandomHexCode(){
+  return Math.floor(Math.random()*16777216).toString(16);
+}
 
 
 
 
 // Keep track of chat messages
-let chatRecord = [{author:'test',message: 'test', time:'test', test: 'test'}];
+let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'ffff00', test: 'test'}];
 
 
 
 //socket functionality
 io.on('connection' , socket => {
+  socket.officialUserColor = createRandomHexCode();
   console.log('User Connected: ', socket.id);
 
   // Send the history of chat messages to the new user
@@ -40,9 +44,12 @@ io.on('connection' , socket => {
   socket.on('send_message', (data)=>{
     console.log('send_message', data);
     const newRecord = {
-      author: data.officialUserName,
-      time: data.time,
-      message: data.message,
+      // author: data.officialUserName,
+      room: toString(socket.room || 'general'),
+      author: toString(socket.officialUserName),
+      authorColor: toString(socket.officialUserColor),
+      time: toString(data.time),
+      message: toString(data.message),
     }
     chatRecord.push(newRecord);
     io.emit('chat_record', chatRecord);
@@ -50,11 +57,19 @@ io.on('connection' , socket => {
 
   
   socket.on('change_user_name', (data)=>{
-    console.log('change_user_name', data);
+    // console.log('change_user_name', data);
     socket.officialUserName = data.userName
     console.log('officialUserName is now ', socket.officialUserName);
-    socket.emit('officialize_change_name', {officialUserName: data.userName});
+    socket.emit('change_user_name_success', {officialUserName: data.userName});
   })
+
+  socket.on('join_room',(data)=>{
+    console.log('join_room', data);
+    const room = toString(data.room);
+    socket.room = room;
+    socket.join( room || 'general' );
+    socket.emit('join_room_success', {room: room});
+  } )
 
 
 
@@ -66,6 +81,9 @@ io.on('connection' , socket => {
 })
 
 
+
+
+// Utils
 
 
 

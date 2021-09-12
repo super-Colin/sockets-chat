@@ -23,13 +23,13 @@ const ChatLog = ({context}) => {
       {messages.map((record, index) => {
         return (
           <div key={index}  className="message my-2">
-            <div className="flex justify-between py-2 px-4 bg-gray-400">
-              <span className="text-lg font-bold">{record.author}</span>
+            <div className="flex justify-between py-2 px-4" style={{backgroundColor:`#${record.authorColor}`}}>
+              <span className="text-lg font-bold p-1 bg-white rounded" >{record.author}</span>
               <span>{record.time}</span>
             </div>
 
-            <div className="flex justify-between py-2 px-4">
-              <span className="message">{record.message}</span>
+            <div className="flex justify-between py-2 px-4 bg-gray-300">
+              <span >{record.message}</span>
             </div>
             
             <hr />

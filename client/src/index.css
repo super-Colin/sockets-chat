@@ -10,6 +10,9 @@
 }
 
 .chatLog{
-  height: 60vh;
+  height: 50vh;
   overflow-y: scroll;
+}
+body{
+  background-color: rgba(31, 41, 55, 1);
 }

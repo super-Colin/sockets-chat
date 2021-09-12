@@ -53,10 +53,11 @@ export class Provider extends React.Component {
   // } 
 
   sendMessage = ()=>{
+    const thisDate = new Date();
     const message = {
       officialUserName: this.state.officialUserName,
       // userName: this.state.userName,
-      time: new Date().getHours() + ':' + new Date().getMinutes(),
+      time: thisDate.getHours() + ':' + ( thisDate.getMinutes().length === 1 ? '0' + thisDate.getMinutes() : thisDate.getMinutes() ),
       message: this.state.message,
     }
 
