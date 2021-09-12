@@ -32,27 +32,48 @@ let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'fff
 
 //socket functionality
 io.on('connection' , socket => {
-  socket.officialUserColor = createRandomHexCode();
   console.log('User Connected: ', socket.id);
 
+  // create a consistant color for the user in chat
+  socket.officialUserColor = createRandomHexCode();
   // Send the history of chat messages to the new user
   socket.emit('chat_record', chatRecord);
 
 
   socket.on('test', data => {console.log('Received test')})
   
+  // On receiving a message from a user
   socket.on('send_message', (data)=>{
     console.log('send_message', data);
+
+    // Check for all our expected values and ignore anything else
+    let validMessage = true;
     const newRecord = {
-      // author: data.officialUserName,
-      room: toString(socket.room || 'general'),
-      author: toString(socket.officialUserName),
-      authorColor: toString(socket.officialUserColor),
-      time: toString(data.time),
-      message: toString(data.message),
+      // room: (socket.room ? `${socket.room}` : validMessage = false),
+      author: (socket.officialUserName ? `${socket.officialUserName}` : validMessage = false),
+      // author: (socket.officialUserName ? `${socket.officialUserName}` : console.log('invalid name')),
+      authorColor: (socket.officialUserColor ? `${socket.officialUserColor}` : validMessage = false),
+      // authorColor: (socket.officialUserColor ? `${socket.officialUserColor}` : console.log('invalid author color')),
+      time: ( data.time ? `${data.time}` : validMessage = false),
+      // time: ( data.time ? `${data.time}` : console.log('invalid time')),
+      message: (data.message ? `${data.message}` : validMessage = false),
+      // message: (data.message ? `${data.message}` : console.log('invalid message')),
     }
-    chatRecord.push(newRecord);
-    io.emit('chat_record', chatRecord);
+
+    // If it's valid, add it to the chat record
+    if(validMessage){
+      chatRecord.push(newRecord);
+      // If chat is somehow over 100 remove *all but the last 100*
+      if(chatRecord.length >= 100){
+        const chatLength = chatRecord.length;
+        chatRecord.splice( chatLength - 100 , chatLength);
+      }
+      console.log('sending chat record')
+      io.emit('chat_record', chatRecord);
+    }else{
+      console.log('invalid message')
+      socket.emit('unsuccessful_message', {errorMessage:'Invalid message'} );
+    }
   })
 
   
@@ -65,7 +86,7 @@ io.on('connection' , socket => {
 
   socket.on('join_room',(data)=>{
     console.log('join_room', data);
-    const room = toString(data.room);
+    const room = `${data.room}`;
     socket.room = room;
     socket.join( room || 'general' );
     socket.emit('join_room_success', {room: room});

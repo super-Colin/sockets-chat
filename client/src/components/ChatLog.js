@@ -6,8 +6,8 @@ const ChatLog = ({context}) => {
   const [messages, setMessages] = React.useState([]);
 
     context.socket.on('chat_record', (data)=>{
-      // console.log('chat_record', data);
-      console.log('chat_record');
+      console.log('chat_record', data);
+      // console.log('chat_record');
       context.chatRecord = data;
       setMessages(data);
       document.getElementById('chatLog').scrollTop = document.getElementById('chatLog').scrollHeight;

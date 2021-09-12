@@ -10,6 +10,7 @@ import ChatLog from './ChatLog';
 
 
 const MessageForm = ({context}) => {
+  const [errorState, setErrorState] = React.useState({ errorMessage:'', error:false});
 
   const [messageState, setMessageState] = React.useState({
     message: '',
@@ -25,9 +26,13 @@ const MessageForm = ({context}) => {
     setMessageState({...messageState, officialUserName: data.officialUserName});
   })
 
+  context.socket.on('unsuccessful_message', (data)=>{
+    setErrorState({errorMessage: data.errorMessage, error:true});
+  })
+
   useEffect(() => {
     console.log('MessageForm useEffect');
-  } , [context]);
+  } , [context.socket]);
 
 
   const onTextChange = e => {
@@ -38,6 +43,13 @@ const MessageForm = ({context}) => {
 
   const toggleChangingName = () => {
     const newMessageState = { ...messageState, changingUserName: !messageState.changingUserName };
+    setMessageState( newMessageState );
+  }
+
+  const submitMessage = () => {
+    context.sendMessage();
+    const newMessageState = { ...messageState, message : '' };
+    context.message = '';
     setMessageState( newMessageState );
   }
 
@@ -52,7 +64,8 @@ const MessageForm = ({context}) => {
         {messageState.officialUserName === '' ? null :
           <button onClick={toggleChangingName} className="px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
         }
-        {/* <button onClick={toggleChangingName} className="self-end px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button> */}
+
+
       </div>
 
       <div className="flex justify-center flex-wrap mb-6">
@@ -83,12 +96,7 @@ const MessageForm = ({context}) => {
         <div className="flex flex-wrap justify-center px-2 py-1 mt-10 lg:container lg:mx-auto">
 
           <textarea type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
-          <button onClick={ (e) =>{
-            context.sendMessage();
-            const newMessageState = { ...messageState, message : '' };
-            context.message = '';
-            setMessageState( newMessageState );
-          }} className="text-2xl px-4 py-2 bg-green-300" >Send</button>
+          <button onClick={ submitMessage } className="text-2xl px-4 py-2 bg-green-300" >Send</button>
 
           <hr />
         </div>

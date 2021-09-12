@@ -18,9 +18,10 @@ export class Provider extends React.Component {
       socket: socket,
       userName:'',
       officialUserName:'',
-      // message:JSON.stringify({test:"hello"}),
+      officialRoomName:'general',
       message: '',
       chatRecord: [],
+
 
       sendMessage: this.sendMessage.bind(this),
       changeName : this.changeName.bind(this),
@@ -30,15 +31,6 @@ export class Provider extends React.Component {
       console.log('Connected to server');
     })
 
-
-    // socket.on('officialize_change_name', (data)=>{
-    //   console.log('officializeChangeName', data.officialUserName);
-    //   this.state.officialUserName = data.officialUserName;
-    // })
-    // socket.on('chat_record', (data)=>{
-    //   console.log('chat_record', data);
-    //   this.state.chatRecord = data;
-    // })
 
   }
 
@@ -57,7 +49,7 @@ export class Provider extends React.Component {
     const message = {
       officialUserName: this.state.officialUserName,
       // userName: this.state.userName,
-      time: thisDate.getHours() + ':' + ( thisDate.getMinutes().length === 1 ? '0' + thisDate.getMinutes() : thisDate.getMinutes() ),
+      time: thisDate.getHours() + ':' + ( `${thisDate.getMinutes()}`.length === 1 ? '0' + thisDate.getMinutes() : thisDate.getMinutes() ),
       message: this.state.message,
     }
 
