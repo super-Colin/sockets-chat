@@ -1,20 +1,22 @@
 
 const MAX_CHAT_MESSAGES = 6;
+const SOCKET_PORT = process.env.SOCKET_PORT || 4000;
+const HTTP_PORT = process.env.SOCKET_PORT || [80, 443];
 
 
 const express = require('express');
-const app = express();
+const socketApp = express();
 
 const http = require('http');
 const cors = require('cors');
 
 const {Server} = require('socket.io');
 
-app.use(cors());
+socketApp.use(cors());
 
-const server = http.createServer(app);
+const socketServer = http.createServer(socketApp);
 
-const io = new Server(server, {
+const io = new Server(socketServer, {
     cors:{
       origins: 'http://localhost:3000',
       methods: ['GET', 'POST'],
@@ -114,6 +116,21 @@ io.on('connection' , socket => {
 
 
 // Listen for connections
-server.listen(4000, ()=>{
-  console.log('Server is running on port 4000');
+socketServer.listen(SOCKET_PORT, ()=>{
+  console.log('S Server is running on port 4000');
+})
+
+
+// HTTP Server
+const httpApp = express();
+
+httpApp.get('/', (req, res)=>{
+  console.log('http server sent file')
+  res.sendFile(__dirname + '/build/index.html');
+  // next();
+})
+httpApp.use(express.static(__dirname + '/build'));
+
+httpApp.listen(8081, ()=>{
+  console.log('HTTP Server is running on port 80');
 })
