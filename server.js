@@ -1,6 +1,6 @@
 
 const MAX_CHAT_MESSAGES = 12;
-const PORT = process.env.PORT || 801;
+const PORT = process.env.PORT || 80;
 
 
 const express = require('express');
@@ -17,12 +17,12 @@ const {Server} = require('socket.io');
 // // HTTP Server
 // // to serve React App
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// socketApp.use(cors());
-// socketApp.use(express.static(__dirname + '/build'));
+socketApp.use(cors());
+// socketApp.use(express.static(__dirname + '/client/build/'));
 // socketApp.get('/', (req, res)=>{
 //   console.log('http server sent file')
 //   res.set('current-port', PORT);
-//   res.sendFile(__dirname + '/build/index.html');
+//   res.sendFile(__dirname + '/client/build/index.html');
 // })
 // socketApp.get('/*', (req, res)=>{
 //   console.log('fallback redirect')
@@ -37,6 +37,7 @@ const socketServer = http.createServer(socketApp);
 const io = new Server(socketServer, {
     cors:{
       origins: `http://localhost${PORT}`,
+      // origins: `http://localhost`,
       methods: ['GET', 'POST'],
     }
 });
@@ -127,36 +128,19 @@ io.on('connection' , socket => {
 // // HTTP Server
 // // to serve React App
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// socketApp.use(cors());
-socketApp.use(express.static(__dirname + '/build'));
-// socketApp.get('/', (req, res)=>{
-//   console.log('http server sent file')
-//   res.set('current-port', PORT);
-//   res.sendFile(__dirname + '/build/index.html');
-// })
-// socketApp.get('/*', (req, res)=>{
-//   console.log('fallback redirect')
-//   res.redirect('/');
-// })
+socketApp.use(express.static(__dirname + '/client/build/'));
 
-
-socketServer.on('connect', (req, res)=>{
-  console.log('socket server connected')
-  res.setHeader('current-port', PORT);
-  // console.log(res.getHeaders());
-  // res.sendFile(__dirname + '/build/index.html');
-})
-socketServer.on('connection', (req, res)=>{
-  console.log('socket server connection')
-})
 socketServer.on( 'request', (req, res)=>{
   console.log('socket server request')
-  // res.set('current-port', PORT);
-  // res.header('current-port', PORT);
-  res.setHeader('x-current-port', PORT);
-  res.setHeader('X-Powered-By', PORT);
-  // console.log(res.getHeaders());
-  res.sendFile(__dirname + '/build/index.html');
+  if(req.method === 'GET'){
+    console.log('GET request');
+    if( ! res.headersSent){
+      res.setHeader('x-current-port', PORT);
+      // res.sendFile(__dirname + '/client/build/index.html');
+    }
+    // res.setHeader('x-current-port', PORT);
+    // res.sendFile(__dirname + '/client/build/index.html');
+  }
 })
 
 

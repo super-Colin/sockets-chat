@@ -10,16 +10,15 @@ export class Provider extends React.Component {
 
 
   constructor(props) {
-    let req = new XMLHttpRequest();
-    req.open('GET', document.location, false);
-    req.send(null);
-    var headers = req.getAllResponseHeaders().toLowerCase();
-    // const SOCKET_PORT = headers.indexOf('x-powered-by') > -1 ? req.getResponseHeader('x-powered-by') : '801';
-    const SOCKET_PORT = headers.indexOf('x-powered-by') > -1 ? req.getResponseHeader('x-current-socket') : '80';
+
+
     super(props);
-    // const socket = new WebSocket('ws://localhost:4000');
-    console.log('requesting: ', `${document.location}:${SOCKET_PORT}`)
-    const socket = io(`${document.location}:${SOCKET_PORT}`);;
+    // let socketURL = 'http://localhost:8080';
+    // console.log('requesting: ', `${socketURL}`);
+    console.log('requesting: ', `${window.location}`);
+    // const socket = io(`${socketURL}`);
+    const socket = io(`${window.location}`);
+    // const socket = this.connectSocket();
 
     this.state = {
       socket: socket,
@@ -28,7 +27,6 @@ export class Provider extends React.Component {
       officialRoomName:'general',
       message: '',
       chatRecord: [],
-
 
       sendMessage: this.sendMessage.bind(this),
       changeName : this.changeName.bind(this),
@@ -46,6 +44,27 @@ export class Provider extends React.Component {
   // ~~~~~~~~~~~
   // ~~ UTILS ~~
   // ~~~~~~~~~~~
+
+  // createSocketUrl = async ()=>{
+  //   // get the current port we're running on from the heroku server
+  //   let req = new XMLHttpRequest();
+  //   let URL = `${document.location}`;
+  //   // strip the protocol and port from the URL
+  //   let cleanedURL = URL.replace (/^[a-z]{4,5}\:\/{2}[a-z]{1,}\:[0-9]{1,4}.(.*)/, '$1'); 
+  //   req.open('GET', cleanedURL, false);
+  //   req.send(null);
+  //   var headers =  req.getAllResponseHeaders().toLowerCase();
+  //   const SOCKET_PORT = await headers.indexOf('x-powered-by') > -1 ? req.getResponseHeader('x-current-socket') : '80';
+  //   return `${cleanedURL}:${SOCKET_PORT}`
+  // }
+
+  // connectSocket = async ()=>{
+  //   let socketURL = await this.createSocketUrl();
+  //   console.log('requesting: ', `${socketURL}`);
+  //   const socket = io(`${socketURL}`);
+  //   return socket;
+  // }
+
 
   sendMessage = ()=>{
     const thisDate = new Date();

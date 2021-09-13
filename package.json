@@ -1,6 +1,23 @@
 {
-  "scripts":{
-    "start":"npm --prefix ./server/ run start",
-    "build":" npm --prefix ./client/ i && npm --prefix ./server/ i && npm --prefix ./client/ run build && mv ./client/build/* ./server/build/"
+  "name": "sockets-chat-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "(npm install); (cd client && npm install); (cd client && npm run build);",
+    "heroku-postbuild": "(npm install); (cd client && npm install); (cd client && npm run build);"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "ex": "^0.1.4",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.12",
+    "socket.io": "^4.2.0",
+    "socketio": "^1.0.0",
+    "ws": "^8.2.2"
   }
 }

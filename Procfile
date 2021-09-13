@@ -1,1 +1,2 @@
-web: npm --prefix ./server/ run start
+release: npm run build
+web: npm run start
