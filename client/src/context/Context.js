@@ -62,7 +62,10 @@ export class Provider extends React.Component {
   // ~~~ React State ~~~
   // ~~~~~~~~~~~~~~~~~~~
 
-  componentDidMount() {}
+  componentDidMount() {
+    // update the title of the page on load
+    document.title = 'SC LIVE Chat'
+  }
 
   componentDidUpdate() {}
 

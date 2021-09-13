@@ -1,7 +1,7 @@
 
-const MAX_CHAT_MESSAGES = 6;
+const MAX_CHAT_MESSAGES = 12;
 const SOCKET_PORT = process.env.SOCKET_PORT || 4000;
-const HTTP_PORT = process.env.SOCKET_PORT || [80, 443];
+const HTTP_PORT = process.env.HTTP_PORT || 80 ;
 
 
 const express = require('express');
@@ -86,9 +86,10 @@ io.on('connection' , socket => {
   
   socket.on('change_user_name', (data)=>{
     // console.log('change_user_name', data);
-    socket.officialUserName = data.userName
+    // Set a property on the socket to hold the official name
+    socket.officialUserName = `${data.userName}`;
     console.log('officialUserName is now ', socket.officialUserName);
-    socket.emit('change_user_name_success', {officialUserName: data.userName, officialUserColor: socket.officialUserColor});
+    socket.emit('change_user_name_success', {officialUserName: socket.officialUserName, officialUserColor: socket.officialUserColor});
   })
 
   socket.on('join_room',(data)=>{
@@ -100,8 +101,6 @@ io.on('connection' , socket => {
   } )
 
 
-
-
   socket.on('close', ()=>{
     console.log('User Disconnected: ', socket.id);
   })
@@ -111,26 +110,33 @@ io.on('connection' , socket => {
 
 
 
-// Utils
-
-
-
 // Listen for connections
 socketServer.listen(SOCKET_PORT, ()=>{
-  console.log('S Server is running on port 4000');
+  console.log(`Socket Server is running on port ${SOCKET_PORT}`);
 })
 
 
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // HTTP Server
+// to serve React App
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const httpApp = express();
+httpApp.use(express.static(__dirname + '/build'));
+
 
 httpApp.get('/', (req, res)=>{
   console.log('http server sent file')
   res.sendFile(__dirname + '/build/index.html');
-  // next();
 })
-httpApp.use(express.static(__dirname + '/build'));
+httpApp.get('/*', (req, res)=>{
+  // console.log('http server sent fallback file')
+  console.log('fallback redirect')
+  res.redirect('/');
+  // res.sendFile(__dirname + '/build/index.html');
+})
 
-httpApp.listen(8081, ()=>{
-  console.log('HTTP Server is running on port 80');
+httpApp.listen( HTTP_PORT, ()=>{
+  console.log(`HTTP Server is running on port ${HTTP_PORT}`);
 })

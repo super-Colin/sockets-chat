@@ -84,23 +84,16 @@ const MessageForm = ({context}) => {
 
         <span className="flex-break my-1" />
 
-        {/* <button onClick={toggleChangingName} className="px-2 py-1 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button> */}
       </div>
 
 
 
-          {/* <button onClick={e =>{console.log(messageState)}} className="bg-blue-300" >Log Message State</button>
-          <button onClick={e =>{console.log(context)}} className="bg-pink-300" >Log Context</button> */}
+
 
 
       <ChatLog messages={messageState} />
 
 
-      {/* <button onClick={()=>{
-        resetError();
-        console.log('sending test');
-        context.socket.emit('send_message', {test:'test'})}
-      } className="bg-red-700" >Test Socket</button> */}
 
       {messageState.officialUserName === '' ? null :
         <div className="flex flex-wrap justify-center mt-10 lg:container lg:mx-auto">
@@ -111,6 +104,17 @@ const MessageForm = ({context}) => {
           <hr />
         </div>
       }
+
+
+
+      {/* <button onClick={e =>{console.log(messageState)}} className="bg-blue-300" >Log Message State</button>
+      <button onClick={e =>{console.log(context)}} className="bg-pink-300" >Log Context</button>
+      <button onClick={()=>{
+        resetError();
+        console.log('sending test');
+        context.socket.emit('send_message', {test:'test'})}
+      } className="bg-red-700" >Test Socket</button> */}
+
 
     </div>
   )

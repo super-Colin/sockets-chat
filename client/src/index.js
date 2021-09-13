@@ -5,9 +5,6 @@ import App from "./App";
 import "./index.css";
 
 
-
-// const ws = new WebSocket('ws://localhost:4000');
-
 // https://dev.to/bravemaster619/how-to-use-socket-io-client-correctly-in-react-app-o65
 // https://github.com/lethanhvietctt5/video-chat-app
 
