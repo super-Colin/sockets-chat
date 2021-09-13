@@ -18,18 +18,6 @@ const {Server} = require('socket.io');
 // // to serve React App
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 socketApp.use(cors());
-// socketApp.use(express.static(__dirname + '/client/build/'));
-// socketApp.get('/', (req, res)=>{
-//   console.log('http server sent file')
-//   res.set('current-port', PORT);
-//   res.sendFile(__dirname + '/client/build/index.html');
-// })
-// socketApp.get('/*', (req, res)=>{
-//   console.log('fallback redirect')
-//   res.redirect('/');
-// })
-
-
 
 
 const socketServer = http.createServer(socketApp);
@@ -123,7 +111,6 @@ io.on('connection' , socket => {
 
 
 
-
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // // HTTP Server
 // // to serve React App
@@ -136,10 +123,8 @@ socketServer.on( 'request', (req, res)=>{
     console.log('GET request');
     if( ! res.headersSent){
       res.setHeader('x-current-port', PORT);
-      // res.sendFile(__dirname + '/client/build/index.html');
+      res.setHeader('Strict-Transport-Security',  'max-age=0');
     }
-    // res.setHeader('x-current-port', PORT);
-    // res.sendFile(__dirname + '/client/build/index.html');
   }
 })
 
@@ -149,8 +134,3 @@ socketServer.on( 'request', (req, res)=>{
 socketServer.listen(PORT, ()=>{
   console.log(`Socket Server is running on port ${PORT}`);
 })
-
-
-
-
-
