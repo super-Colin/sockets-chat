@@ -1,6 +1,6 @@
 
 const MAX_CHAT_MESSAGES = 12;
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 801;
 
 
 const express = require('express');
@@ -11,43 +11,40 @@ const cors = require('cors');
 
 const {Server} = require('socket.io');
 
-socketApp.use(cors());
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// HTTP Server
-// to serve React App
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-socketApp.use(express.static(__dirname + '/build'));
-socketApp.get('/', (req, res)=>{
-  console.log('http server sent file')
-  res.sendFile(__dirname + '/build/index.html');
-})
-socketApp.get('/*', (req, res)=>{
-  // console.log('http server sent fallback file')
-  console.log('fallback redirect')
-  res.redirect('/');
-  // res.sendFile(__dirname + '/build/index.html');
-})
+
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // HTTP Server
+// // to serve React App
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// socketApp.use(cors());
+// socketApp.use(express.static(__dirname + '/build'));
+// socketApp.get('/', (req, res)=>{
+//   console.log('http server sent file')
+//   res.set('current-port', PORT);
+//   res.sendFile(__dirname + '/build/index.html');
+// })
+// socketApp.get('/*', (req, res)=>{
+//   console.log('fallback redirect')
+//   res.redirect('/');
+// })
+
+
 
 
 const socketServer = http.createServer(socketApp);
 
 const io = new Server(socketServer, {
     cors:{
-      // origins: 'http://localhost:3000',
+      origins: `http://localhost${PORT}`,
       methods: ['GET', 'POST'],
     }
 });
 
-function createRandomHexCode(){
-  return Math.floor(Math.random()*16777216).toString(16);
-}
-
-
 // Keep track of chat messages
 let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'ffff00', test: 'test'}];
-
-
+// function for random color for new users
+function createRandomHexCode(){return Math.floor(Math.random()*16777216).toString(16);}
 
 //socket functionality
 io.on('connection' , socket => {
@@ -121,6 +118,45 @@ io.on('connection' , socket => {
     console.log('User Disconnected: ', socket.id);
   })
 
+})
+
+
+
+
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // HTTP Server
+// // to serve React App
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// socketApp.use(cors());
+socketApp.use(express.static(__dirname + '/build'));
+// socketApp.get('/', (req, res)=>{
+//   console.log('http server sent file')
+//   res.set('current-port', PORT);
+//   res.sendFile(__dirname + '/build/index.html');
+// })
+// socketApp.get('/*', (req, res)=>{
+//   console.log('fallback redirect')
+//   res.redirect('/');
+// })
+
+
+socketServer.on('connect', (req, res)=>{
+  console.log('socket server connected')
+  res.setHeader('current-port', PORT);
+  // console.log(res.getHeaders());
+  // res.sendFile(__dirname + '/build/index.html');
+})
+socketServer.on('connection', (req, res)=>{
+  console.log('socket server connection')
+})
+socketServer.on( 'request', (req, res)=>{
+  console.log('socket server request')
+  // res.set('current-port', PORT);
+  // res.header('current-port', PORT);
+  res.setHeader('x-current-port', PORT);
+  res.setHeader('X-Powered-By', PORT);
+  // console.log(res.getHeaders());
+  res.sendFile(__dirname + '/build/index.html');
 })
 
 

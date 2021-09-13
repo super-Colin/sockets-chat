@@ -19,6 +19,7 @@ const ChatLog = ({context}) => {
 
   return (
     <div id="chatLog" className="chatLog bg-gray-600 mx-auto lg:container">
+      {messages.length === 0 ? <p className="text-center text-gray-400">No messages yet</p> : null}
       
       {messages.map((record, index) => {
         const messageKey = `${record.authorColor}-${record.key}`;

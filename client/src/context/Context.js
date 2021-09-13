@@ -10,9 +10,16 @@ export class Provider extends React.Component {
 
 
   constructor(props) {
+    let req = new XMLHttpRequest();
+    req.open('GET', document.location, false);
+    req.send(null);
+    var headers = req.getAllResponseHeaders().toLowerCase();
+    // const SOCKET_PORT = headers.indexOf('x-powered-by') > -1 ? req.getResponseHeader('x-powered-by') : '801';
+    const SOCKET_PORT = headers.indexOf('x-powered-by') > -1 ? req.getResponseHeader('x-current-socket') : '80';
     super(props);
     // const socket = new WebSocket('ws://localhost:4000');
-    const socket = io('http://localhost:4000');;
+    console.log('requesting: ', `${document.location}:${SOCKET_PORT}`)
+    const socket = io(`${document.location}:${SOCKET_PORT}`);;
 
     this.state = {
       socket: socket,

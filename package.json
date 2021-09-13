@@ -1,0 +1,6 @@
+{
+  "scripts":{
+    "start":"npm --prefix ./server/ run start",
+    "build":" npm --prefix ./client/ i && npm --prefix ./server/ i && npm --prefix ./client/ run build && mv ./client/build/* ./server/build/"
+  }
+}
