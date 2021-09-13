@@ -1,7 +1,6 @@
 
 const MAX_CHAT_MESSAGES = 12;
-const SOCKET_PORT = process.env.SOCKET_PORT || 4000;
-const HTTP_PORT = process.env.HTTP_PORT || 80 ;
+const PORT = process.env.PORT || 80;
 
 
 const express = require('express');
@@ -14,11 +13,28 @@ const {Server} = require('socket.io');
 
 socketApp.use(cors());
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// HTTP Server
+// to serve React App
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+socketApp.use(express.static(__dirname + '/build'));
+socketApp.get('/', (req, res)=>{
+  console.log('http server sent file')
+  res.sendFile(__dirname + '/build/index.html');
+})
+socketApp.get('/*', (req, res)=>{
+  // console.log('http server sent fallback file')
+  console.log('fallback redirect')
+  res.redirect('/');
+  // res.sendFile(__dirname + '/build/index.html');
+})
+
+
 const socketServer = http.createServer(socketApp);
 
 const io = new Server(socketServer, {
     cors:{
-      origins: 'http://localhost:3000',
+      // origins: 'http://localhost:3000',
       methods: ['GET', 'POST'],
     }
 });
@@ -109,34 +125,12 @@ io.on('connection' , socket => {
 
 
 
-
-// Listen for connections
-socketServer.listen(SOCKET_PORT, ()=>{
-  console.log(`Socket Server is running on port ${SOCKET_PORT}`);
+// Listen for socket connections
+socketServer.listen(PORT, ()=>{
+  console.log(`Socket Server is running on port ${PORT}`);
 })
 
 
 
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// HTTP Server
-// to serve React App
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const httpApp = express();
-httpApp.use(express.static(__dirname + '/build'));
 
-
-httpApp.get('/', (req, res)=>{
-  console.log('http server sent file')
-  res.sendFile(__dirname + '/build/index.html');
-})
-httpApp.get('/*', (req, res)=>{
-  // console.log('http server sent fallback file')
-  console.log('fallback redirect')
-  res.redirect('/');
-  // res.sendFile(__dirname + '/build/index.html');
-})
-
-httpApp.listen( HTTP_PORT, ()=>{
-  console.log(`HTTP Server is running on port ${HTTP_PORT}`);
-})
