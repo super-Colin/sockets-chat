@@ -24,8 +24,9 @@ const socketServer = http.createServer(socketApp);
 
 const io = new Server(socketServer, {
     cors:{
-      origins: `http://localhost${PORT}`,
+      // origins: `http://localhost${PORT}`,
       // origins: `http://localhost`,
+      origins: `sc-sockets-chat.heroku.com/`,
       methods: ['GET', 'POST'],
     }
 });
