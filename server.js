@@ -13,10 +13,7 @@ const {Server} = require('socket.io');
 
 
 
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // HTTP Server
-// // to serve React App
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 socketApp.use(cors());
 
 
@@ -124,7 +121,7 @@ socketServer.on( 'request', (req, res)=>{
     console.log('GET request');
     if( ! res.headersSent){
       res.setHeader('x-current-port', PORT);
-      res.setHeader('Strict-Transport-Security',  'max-age=0');
+      res.setHeader('Strict-Transport-Security',  'max-age=63072000');
     }
   }
 })
