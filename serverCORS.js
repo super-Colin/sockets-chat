@@ -5,11 +5,65 @@ const PORT = process.env.PORT || 8080;
 
 const express = require('express');
 const http = require('http');
+const cors = require('cors');
 const socketApp = express(); //initialize express
 
 const {Server} = require('socket.io'); // grab customized Server constructor from socket.io
+// https://stackoverflow.com/questions/24988045/need-for-http-createserverapp-in-node-js-express
+// ^ Why the need for Server? ^
+
+
+// Heroku.com = 
+// Strict-Transport-Security
+// 	max-age=31536000; includeSubDomains
+
+
+
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // CORS
+// // https://www.npmjs.com/package/cors
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const CORS_WHITELIST = [
+  `localhost${PORT}`,
+  `sc-sockets-chat.heroku.com/`,
+  `supercolin.dev`,
+  `www.supercolin.dev`,
+  `http://www.supercolin.dev`,
+  `https://www.supercolin.dev`,
+]
+const corsOptions = {
+  origin: (origin, callback) => {
+    // if (CORS_WHITELIST.indexOf(origin) !== -1) {
+    if (CORS_WHITELIST.indexOf(origin) !== -1 || ! origin ) {
+      console.log(`CORS allowed: ${origin}`);
+      callback(null, true)
+    } else {
+      console.log(`CORS denied: ${origin}`);
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  methods: ['GET', 'POST'],
+}
+// socketApp.use(cors(corsOptions)); //We'll add cors as a middleware when we explicitly creat a Server with socketio
+
+
 const socketServer = http.createServer(socketApp);
-const io = new Server(socketServer);
+
+const io = new Server(socketServer, {
+    cors:corsOptions
+    // cors:{origin:`http://localhost${PORT}`, methods:['GET', 'POST']}
+});
+// This function can be run in your browser console to test the cors response
+// but it most be run from another domain
+// testCors = async (url) =>{
+//   try {
+//   const fetched = await fetch(url);
+//     console.log(fetched);
+// } catch(err) {
+//     console.log(err);
+//   }
+// }
+// testCors(`http://localhost:8080`);
 
 
 
@@ -20,25 +74,27 @@ const io = new Server(socketServer);
 // // HTTP Server
 // // to serve React App
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// socketApp.use(express.static(__dirname + '/client/build/'));
-socketApp.use(express.static(__dirname + '/public'));
+socketApp.use(express.static(__dirname + '/client/build/'));
 
-// socketServer.on( 'request', (req, res)=>{
-//   // console.log('socket server request')
-//   if(req.method === 'GET'){
-//     // console.log('GET request');
-//     if( ! res.headersSent){
-//       // res.setHeader('x-current-port', PORT);
-//       // res.setHeader('Strict-Transport-Security',  'max-age=0');
-//     }
-//   }
-// })
-
+socketServer.on( 'request', (req, res)=>{
+  console.log('socket server request')
+  if(req.method === 'GET'){
+    console.log('GET request');
+    if( ! res.headersSent){
+      res.setHeader('x-current-port', PORT);
+      res.setHeader('Strict-Transport-Security',  'max-age=0');
+    }
+  }
+})
 
 
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // Chat App / Sockets
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+
 // Keep track of chat messages
 let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'ffff00', test: 'test'}];
 // function for random color for new users
@@ -57,8 +113,8 @@ io.on('connection' , socket => {
   socket.on('test', data => {console.log('Received test')})
   
   // On receiving a message from a user
-  socket.on('client_message', (data)=>{
-    console.log('client_message', data);
+  socket.on('send_message', (data)=>{
+    console.log('send_message', data);
 
     // Check for all our expected values and ignore anything else
     let validMessage = true;
@@ -96,6 +152,7 @@ io.on('connection' , socket => {
 
   
   socket.on('change_user_name', (data)=>{
+    // console.log('change_user_name', data);
     // Set a property on the socket to hold the official name
     socket.officialUserName = `${data.userName}`;
     console.log('officialUserName is now ', socket.officialUserName);
@@ -118,9 +175,30 @@ io.on('connection' , socket => {
 })
 
 
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // Listen for connections
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+// // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // // HTTP Server
+// // // to serve React App
+// // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// socketApp.use(express.static(__dirname + '/client/build/'));
+
+// socketServer.on( 'request', (req, res)=>{
+//   console.log('socket server request')
+//   if(req.method === 'GET'){
+//     console.log('GET request');
+//     if( ! res.headersSent){
+//       res.setHeader('x-current-port', PORT);
+//       res.setHeader('Strict-Transport-Security',  'max-age=0');
+//     }
+//   }
+// })
+
+
+
+
+// Listen for socket connections
 socketServer.listen(PORT, ()=>{
   console.log(`Socket Server is running on port ${PORT}`);
 })

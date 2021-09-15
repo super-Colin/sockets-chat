@@ -6,13 +6,17 @@
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "(npm install);"
+    "build": "(npm install); (cd client && npm install); (cd client && npm run build);",
+    "heroku-postbuild": "(npm install); (cd client && npm install); (cd client && npm run build);"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "ex": "^0.1.4",
     "express": "^4.17.1",
-    "socket.io": "^4.2.0"
+    "nodemon": "^2.0.12",
+    "socket.io": "^4.2.0",
+    "ws": "^8.2.2"
   }
 }

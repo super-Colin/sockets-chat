@@ -1,0 +1,6 @@
+
+
+Heroku.com has header:
+  Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
+
+includeSubdomains options means that myapp.heroku.com is included in heroku's HSTS setting
