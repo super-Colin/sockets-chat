@@ -20,8 +20,8 @@ const io = new Server(socketServer);
 // // HTTP Server
 // // to serve React App
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// socketApp.use(express.static(__dirname + '/client/build/'));
-socketApp.use(express.static(__dirname + '/public'));
+socketApp.use(express.static(__dirname + '/client/build/'));
+// socketApp.use(express.static(__dirname + '/public'));
 
 // socketServer.on( 'request', (req, res)=>{
 //   // console.log('socket server request')

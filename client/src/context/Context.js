@@ -75,7 +75,7 @@ export class Provider extends React.Component {
     }
 
     // send the message to the server
-    this.state.socket.emit( 'send_message', message );
+    this.state.socket.emit( 'client_message', message );
   }
 
   changeName = (newName) => {
