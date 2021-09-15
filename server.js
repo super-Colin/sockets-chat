@@ -1,32 +1,94 @@
 
 const MAX_CHAT_MESSAGES = 12;
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 8080;
 
 
 const express = require('express');
-const socketApp = express();
-
 const http = require('http');
 const cors = require('cors');
+const socketApp = express(); //initialize express
 
-const {Server} = require('socket.io');
+const {Server} = require('socket.io'); // grab customized Server constructor from socket.io
+// https://stackoverflow.com/questions/24988045/need-for-http-createserverapp-in-node-js-express
+// ^ Why the need for Server? ^
+
+
+// Heroku.com = 
+// Strict-Transport-Security
+// 	max-age=31536000; includeSubDomains
 
 
 
-
-socketApp.use(cors());
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // CORS
+// // https://www.npmjs.com/package/cors
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const CORS_WHITELIST = [
+  `http://localhost${PORT}`,
+  `sc-sockets-chat.heroku.com/`
+]
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (CORS_WHITELIST.indexOf(origin) !== -1) {
+    // if (CORS_WHITELIST.indexOf(origin) !== -1 || ! origin ) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  methods: ['GET', 'POST'],
+}
+// socketApp.use(cors()); //We'll add cors as a middleware when we explicitly creat a Server with socketio
+// socketApp.use(cors(corsOptions)); //We'll add cors as a middleware when we explicitly creat a Server with socketio
 
 
 const socketServer = http.createServer(socketApp);
 
 const io = new Server(socketServer, {
-    cors:{
-      // origins: `http://localhost${PORT}`,
-      // origins: `http://localhost`,
-      origins: `sc-sockets-chat.heroku.com/`,
-      methods: ['GET', 'POST'],
-    }
+    cors:corsOptions
+    // cors:{origin:`http://localhost${PORT}`, methods:['GET', 'POST']}
 });
+// This function can be run in your browser console to test the cors response
+// but it most be run from another domain
+// testCors = async (url) =>{
+//   try {
+//   const fetched = await fetch(url);
+//     console.log(fetched);
+// } catch(err) {
+//     console.log(err);
+//   }
+// }
+// testCors(`http://localhost:8080`);
+
+
+
+
+
+
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // HTTP Server
+// // to serve React App
+// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+socketApp.use(express.static(__dirname + '/client/build/'));
+
+socketServer.on( 'request', (req, res)=>{
+  console.log('socket server request')
+  if(req.method === 'GET'){
+    console.log('GET request');
+    if( ! res.headersSent){
+      res.setHeader('x-current-port', PORT);
+      res.setHeader('Strict-Transport-Security',  'max-age=0');
+    }
+  }
+})
+
+
+
+
+
+
+
+
 
 // Keep track of chat messages
 let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'ffff00', test: 'test'}];
@@ -109,22 +171,25 @@ io.on('connection' , socket => {
 
 
 
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// // HTTP Server
-// // to serve React App
-// // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-socketApp.use(express.static(__dirname + '/client/build/'));
 
-socketServer.on( 'request', (req, res)=>{
-  console.log('socket server request')
-  if(req.method === 'GET'){
-    console.log('GET request');
-    if( ! res.headersSent){
-      res.setHeader('x-current-port', PORT);
-      res.setHeader('Strict-Transport-Security',  'max-age=63072000');
-    }
-  }
-})
+
+// // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// // // HTTP Server
+// // // to serve React App
+// // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// socketApp.use(express.static(__dirname + '/client/build/'));
+
+// socketServer.on( 'request', (req, res)=>{
+//   console.log('socket server request')
+//   if(req.method === 'GET'){
+//     console.log('GET request');
+//     if( ! res.headersSent){
+//       res.setHeader('x-current-port', PORT);
+//       res.setHeader('Strict-Transport-Security',  'max-age=0');
+//     }
+//   }
+// })
+
 
 
 
