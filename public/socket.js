@@ -11,7 +11,7 @@ function sendTest() {
 function updateOutput(message) {
   console.log('updating output');
   if(typeof(message) == 'object'){
-    document.getElementById('output').innerHTML = JSON.stringify(data);
+    document.getElementById('output').innerHTML = JSON.stringify(message);
   }else{
     document.getElementById('output').innerHTML = message;
   }
