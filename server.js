@@ -3,6 +3,7 @@ const MAX_CHAT_MESSAGES = 12;
 const PORT = process.env.PORT || 8080;
 
 
+const { time } = require('console');
 const express = require('express');
 const http = require('http');
 const socketApp = express(); //initialize express
@@ -40,7 +41,8 @@ socketApp.use(express.static(__dirname + '/client/build/'));
 // // Chat App / Sockets
 // // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Keep track of chat messages
-let chatRecord = [{author:'test',message: 'test', time:'test', authorColor: 'ffff00', test: 'test'}];
+const serverStart = new Date();
+let chatRecord = [{author:'Server',message: 'Web socket server says hello :)', time: `${serverStart.getHours()}:${serverStart.getMinutes()}`, authorColor: 'ffff00', test: 'test'}];
 // function for random color for new users
 function createRandomHexCode(){return Math.floor(Math.random()*16777216).toString(16);}
 
