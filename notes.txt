@@ -4,3 +4,9 @@ Heroku.com has header:
   Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
 
 includeSubdomains options means that myapp.heroku.com is included in heroku's HSTS setting
+
+
+https://sc-sockets-chat.herokuapp.com/
+postgres://ufphajkqrajuxk:1c855ebb3494351ef9c010241a4459034d24587462e9d12a651ae99337b4b38d@ec2-34-228-154-153.compute-1.amazonaws.com:5432/dbm34fcchi1jrg
+
+

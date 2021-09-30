@@ -32,12 +32,18 @@ const MessageForm = ({context}) => {
     setErrorState({errorMessage: data.errorMessage, error:true});
   })
 
-  useEffect(() => {
-    console.log('MessageForm useEffect');
-  } , [context.socket]);
-
+  const changeUserName = e => {
+    console.log('changeUserName messageState:', messageState);
+    if(messageState.userName !== ''){
+      context.changeName(messageState.userName);
+      toggleChangingName();
+    }else{
+      setErrorState({errorMessage: "User name can't be blank", error:true});
+    }
+  }
 
   const onTextChange = e => {
+    console.log('onTextChange messageState: ', `${[e.target.name]}: ${e.target.value}`, messageState);
     resetError();
     const newMessageState = { ...messageState, [e.target.name]: e.target.value };
     setMessageState( newMessageState );
@@ -62,7 +68,27 @@ const MessageForm = ({context}) => {
     }
   }
 
+  useEffect(()=>{
+    const enterListener = (e) => {
+      console.log(`dected ${e.code} key`);
+      if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+        
+        console.log('dected enter key')
+        if(e.target.name === 'message') {
+          console.log('ENTER submitMessagee');
+          submitMessage();
+        }else if(e.target.name === 'userName'){
+          console.log('ENTER changeUserName');
+          changeUserName();
+        }
+      }
+    }
+    document.addEventListener('keyup', enterListener);
+    return () => {
+      document.removeEventListener('keyup', enterListener);
+    }
 
+  }, [messageState]);
 
 
   return (
@@ -78,16 +104,13 @@ const MessageForm = ({context}) => {
 
       <div className="flex justify-center flex-wrap mb-6">
         { messageState.changingUserName ? <div className="flex flex-wrap justify-center">
-          <input type="text" maxLength="10" value={messageState.userName} name="userName" onChange={ (e) => {onTextChange(e)} } className="px-2 py-1 bg-gray-300" />
-          <button onClick={ e =>{ context.changeName(messageState.userName); if(messageState.userName !== ''){toggleChangingName()} } } className="px-2 py-1 bg-green-300" >Submit Name</button>
+          <input type="text" maxLength="10" value={messageState.userName} name="userName" onChange={onTextChange} className="px-2 py-1 bg-gray-300" />
+          <button onClick={ changeUserName } className="px-2 py-1 bg-green-300" >Submit Name</button>
         </div> : null }
 
         <span className="flex-break my-1" />
 
       </div>
-
-
-
 
 
 
@@ -98,22 +121,12 @@ const MessageForm = ({context}) => {
       {messageState.officialUserName === '' ? null :
         <div className="flex flex-wrap justify-center mt-10 lg:container lg:mx-auto">
 
-          <textarea type="text" value={messageState.message} name="message" onChange={ e => onTextChange(e) } className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
+          <textarea type="text" value={messageState.message} name="message" onChange={ onTextChange} className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
           <button onClick={ submitMessage } className="rounded text-2xl mt-2 px-4 py-2 bg-green-400" >Send</button>
 
           <hr />
         </div>
       }
-
-
-
-      {/* <button onClick={e =>{console.log(messageState)}} className="bg-blue-300" >Log Message State</button>
-      <button onClick={e =>{console.log(context)}} className="bg-pink-300" >Log Context</button>
-      <button onClick={()=>{
-        resetError();
-        console.log('sending test');
-        context.socket.emit('send_message', {test:'test'})}
-      } className="bg-red-700" >Test Socket</button> */}
 
 
     </div>
