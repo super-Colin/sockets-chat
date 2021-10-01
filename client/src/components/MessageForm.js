@@ -94,9 +94,11 @@ const MessageForm = ({context}) => {
   return (
     <div>
       <div className="flex flex-wrap justify-center my-6 relative items-center lg:container mx-auto">
-        {messageState.officialUserName === '' ? <h3 className="text-center text-4xl px-2  text-white underline" >Set Your Name To Send Messages:</h3> : <h3 className="text-center text-4xl px-2 border-2 rounded px-3 py-2 text-white" style={{borderColor: `#${messageState.userColor}`}} >{messageState.officialUserName}</h3>}
+        {messageState.officialUserName === '' ? <h3 className="text-center text-4xl px-2  text-white underline" >Set Your Name To Send Messages:</h3> : <h3 className="mx-80 md:mx-0 text-center text-4xl px-2 border-2 rounded px-3 py-2 text-white" style={{borderColor: `#${messageState.userColor}`}} >{messageState.officialUserName}</h3>}
         
-          <button onClick={toggleChangingName} className="sm:absolute right-0 px-3 py-2 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
+        {messageState.officialUserName ?  
+          <button onClick={toggleChangingName} className="mt-3 md:absolute right-0 px-3 py-2 bg-yellow-600" >{ messageState.changingUserName ? 'Nevermind' : 'Change Name'}</button>
+        : null}
         
 
       </div>
@@ -104,8 +106,8 @@ const MessageForm = ({context}) => {
 
       <div className="flex justify-center flex-wrap mb-6">
         { messageState.changingUserName ? <div className="flex flex-wrap justify-center">
-          <input type="text" maxLength="10" value={messageState.userName} name="userName" onChange={onTextChange} className="px-2 py-1 bg-gray-300" />
-          <button onClick={ changeUserName } className="px-2 py-1 bg-green-300" >Submit Name</button>
+          <input type="text" maxLength="10" value={messageState.userName} name="userName" onChange={onTextChange} className="w-5/6 sm:w-auto px-2 py-1 bg-gray-300" />
+          <button onClick={ changeUserName } className="mt-3 sm:mt-0 px-2 py-1 bg-green-300" >Submit Name</button>
         </div> : null }
 
         <span className="flex-break my-1" />
@@ -119,12 +121,12 @@ const MessageForm = ({context}) => {
 
 
       {messageState.officialUserName === '' ? null :
-        <div className="flex flex-wrap justify-center mt-10 lg:container lg:mx-auto">
+        <div className="message-input-container flex flex-wrap justify-center p-2 sm:p-4 sm:px-7 mt-10 bg-gray-700 lg:container lg:mx-auto">
 
-          <textarea type="text" value={messageState.message} name="message" onChange={ onTextChange} className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
+          <textarea id="message-input" type="text" value={messageState.message} name="message" onChange={ onTextChange} className="w-full  h-40 px-2 py-1 bg-gray-100 border border-gray-500" placeholder="Message..." />
           <button onClick={ submitMessage } className="rounded text-2xl mt-2 px-4 py-2 bg-green-400" >Send</button>
 
-          <hr />
+          {/* <hr /> */}
         </div>
       }
 
